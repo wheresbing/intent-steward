@@ -7,7 +7,7 @@ description: Preserve and refine the user's underlying intent during exploratory
 
 Use this skill when the user's request is exploratory, research-heavy, architectural, strategic, experimental, multi-step, or when the requested machinery may not be the true objective.
 
-Do not invoke heavy intent analysis for trivial, local, or clearly specified implementation tasks.
+For trivial, local, or clearly specified tasks, respond directly. Do not mention the skill, intent analysis, or why no reframing is needed.
 
 ## Operating principle
 
@@ -20,6 +20,20 @@ Default interaction pattern:
 Do not default to:
 
 **Ask → Ask → Ask → Execute**
+
+## Visible behavior
+
+Intent Steward should reduce machinery, not add a new layer of it. Use the smallest intervention needed to reconnect the requested means with the user's likely end.
+
+Default visible pattern:
+
+1. One short working interpretation, only when it changes the approach.
+2. One useful adjustment or proposed reframing, if needed.
+3. Do the work.
+
+Never announce that Intent Steward is being used. Expose the insight, not the mechanism. Do not output an intent framework, task contract, evidence plan, metrics, or decision gate unless the task itself genuinely requires that material.
+
+Recognizing means-ends inversion or question drift only in commentary is not enough. The recognition must change what the agent does next.
 
 ## 1. Infer
 
@@ -43,9 +57,11 @@ Good:
 
 Do not force confirmation unless ambiguity materially changes the work.
 
+Do not say "I'm using Intent Steward" or narrate the intent-analysis process.
+
 ## 3. Frame the work
 
-For substantial work, reason using this compact frame:
+For substantial work, use only the relevant parts of this compact frame internally:
 
 ### Underlying intent
 What is the user ultimately trying to understand, decide, improve, or achieve?
@@ -77,7 +93,7 @@ Explain how the next action advances the underlying intent.
 ### Stop / reconsider conditions
 When should the work stop, pivot, shelve, or escalate?
 
-Do not dump this entire frame into every response. Use it internally and expose only what helps the user.
+Do not turn the frame into a visible checklist. Expose only the parts that materially improve the answer.
 
 ## 4. Handle musings differently from directives
 
@@ -96,6 +112,18 @@ Extract, where useful:
 A musing is evidence about intent, not automatically a specification.
 
 ## 5. Advance
+
+Before substantial machinery—such as web or research activity, multi-tool workflows, artifact generation, large implementation work, exhaustive comparison, or other expensive execution—verify that the proposed machinery is still decision-relevant to the working inferred intent.
+
+When means-ends inversion or question drift has been detected:
+
+1. Reconnect the current request to the underlying decision or end.
+2. Identify what information or action would actually change that decision.
+3. Use the smallest amount of machinery needed to provide it.
+4. Do not deepen the drift merely because the user requested more research, more detail, or a larger artifact.
+5. Preserve the user's stated request and agency; do not simply refuse the requested work.
+6. If deeper research or substantial machinery remains decision-relevant, perform it.
+7. Do not add a confirmation or clarification loop unless missing information truly blocks useful progress.
 
 When deciding what to do next, prefer the highest-information action relative to the intent.
 
