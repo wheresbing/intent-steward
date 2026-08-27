@@ -1,28 +1,68 @@
 # Intent Steward
 
-**Help AI agents preserve the connection between tasks and the human purpose they serve.**
+**Help AI agents understand why you are asking, not just what you asked them to do.**
 
 > Do not make users perfectly specify their intent before helping them. Help them discover it while doing the work.
 >
 > **Infer → Expose → Refine → Act → Re-evaluate**
 
-Intent Steward is a lightweight protocol and agent skill for working with latent, evolving, or partially articulated user intent.
+LLMs are very good at doing things: researching, writing, planning, coding, comparing, summarizing, and creating.
 
-LLMs are often very good at the machinery of work: searching, coding, testing, summarizing, refactoring, documenting, and executing plans. But machinery is usually a means rather than the end.
+But what we ask an LLM to do is often only a **means** to something we actually care about.
 
-A user may ask for a dashboard when the actual need is faster detection of strategy degradation. They may ask for a new indicator when the real question is whether a signal contains enough incremental information to justify building one. They may ask for more experiments after the original hypothesis has already stopped making sense.
+Intent Steward helps an agent keep that connection visible.
 
-Intent Steward teaches agents to treat intent as a **working hypothesis**, not a prerequisite the user must fully specify.
+## A simple example
+
+A user says:
+
+> "I keep forgetting important things. Make me a detailed productivity system."
+
+A typical assistant may immediately create a complicated planner, routine, tagging system, and dashboard.
+
+But the real goal may simply be:
+
+> **Reliably remember and finish the important things.**
+
+Intent Steward might respond:
+
+> "It sounds like the real goal is to reliably remember and finish important things. A detailed productivity system is one possible way to do that. I’ll start with the simplest setup that keeps the important things visible, and only add complexity if it helps."
+
+Then it continues helping.
+
+The important distinction is:
+
+| | Intent |
+|---|---|
+| **Stated** | Make me a detailed productivity system |
+| **Inferred** | Help me reliably remember and finish important things |
+| **Proposed** | Start with the simplest system that achieves that goal |
+
+The agent is not refusing the request or pretending it knows better. It is keeping the requested **means** connected to the underlying **end**.
+
+## More everyday examples
+
+- **"Research 20 laptops for me."** → The real goal may be to choose one laptop with enough confidence, not to maximize research.
+- **"Build me a detailed budget spreadsheet."** → The real goal may be to understand where money is going and avoid running short.
+- **"Plan every hour of my day."** → The real goal may be to make consistent progress on the few things that matter most.
+- **"Summarize every email I receive."** → The real goal may be to notice what needs attention without reading everything.
+- **"Create a huge itinerary for my trip."** → The real goal may be to enjoy the trip and cover the important experiences without being over-scheduled.
+
+In each case, the requested task may still be useful. Intent Steward simply asks the agent to remember **why the task exists**.
 
 ## Core behavior
 
-1. **Infer** the likely underlying intent from the user's request, context, observations, and current work.
-2. **Expose** that inference briefly and transparently when it materially affects the work.
-3. **Refine** it using user corrections and new evidence without forcing clarification loops.
-4. **Act** on the highest-information next step that serves the intent.
-5. **Re-evaluate** when evidence, project direction, or assumptions change.
+1. **Infer** the likely underlying intent from the user's request and context.
+2. **Expose** that interpretation briefly when it affects the approach.
+3. **Refine** it when the user corrects it or new evidence changes the picture.
+4. **Act** on the next step that best serves the intent.
+5. **Re-evaluate** when the work starts drifting away from its purpose.
 
-The agent should not repeatedly ask "what is your intent?" before proceeding. When reasonable, it should infer a working interpretation and continue.
+The agent should not repeatedly ask:
+
+> "What is your intent?"
+
+When reasonable, it should infer a working interpretation, make it visible, and continue.
 
 ## Three kinds of intent
 
@@ -30,35 +70,35 @@ The agent should not repeatedly ask "what is your intent?" before proceeding. Wh
 - **Inferred intent** — what the agent believes the request is in service of.
 - **Proposed intent** — a potentially more useful framing the agent suggests.
 
-The agent must never silently replace stated intent with proposed intent.
+A proposed intent must never silently replace what the user actually asked for.
 
-## Failure modes
+## Common failure modes
 
 ### Means–ends inversion
 
-The machinery becomes the apparent goal.
+The method becomes the goal.
 
-Example: improving a data pipeline long after the only meaningful question was whether the signal had enough information value to justify the pipeline.
+For example, someone starts by trying to remember important things, then spends weeks perfecting a productivity system instead of using it to remember important things.
 
 ### Question drift
 
-The investigation slowly answers a different question from the one that motivated it.
+The work gradually answers a different question from the one that mattered.
 
-Example:
+For example:
 
-`Does GEX improve strategy deployment?`
-→ `Can GEX predict intraday returns?`
-→ `Can this classifier reach 60% accuracy?`
+`Which laptop should I buy?`
+→ `Which laptops have the best benchmark scores?`
+→ `Which benchmark methodology is most accurate?`
 
-The final metric may look impressive while no longer informing the original decision.
+The research may become impressive while no longer helping the person make the original decision.
 
 ### Clarification tax
 
-The agent forces the user to fully articulate intent through repeated questions before doing useful work.
+The agent forces the user to explain everything before doing anything useful.
 
 Intent Steward prefers:
 
-> "My working interpretation is X. That suggests Y is the most informative next step."
+> "My working interpretation is X. That suggests Y is the most useful next step."
 
 rather than:
 
@@ -96,29 +136,25 @@ Copy `skills/intent-steward/` into your project's `.agents/skills/intent-steward
 
 For projects where intent should persist over time, copy `templates/INTENT.md` to the repository root.
 
-The skill supports three conceptual modes:
+The skill supports three simple modes:
 
-- **FRAME** — infer and expose the working intent when beginning an exploratory line of work.
-- **ADVANCE** — choose the highest-information next action relative to the current intent.
-- **REVIEW** — reconcile evidence with beliefs and detect drift or means–ends inversion.
-
-These modes do not require rigid command syntax. The agent should invoke the behavior when the situation warrants it.
+- **FRAME** — what are we really trying to achieve?
+- **ADVANCE** — what is the most useful thing to do next?
+- **REVIEW** — are we still solving the right problem?
 
 ## Design principles
 
-- Intent is a hypothesis, not a contract.
+- Intent is a working hypothesis, not a contract.
 - Infer before interrogating.
-- Expose uncertainty without blocking useful work.
-- Prefer decisions and uncertainty reduction over artifact production.
-- Distinguish evidence, beliefs, assumptions, and goals.
-- Ask "Why are we doing this next?"
-- Optimize for information value before machinery quality.
-- Revisit intent when evidence changes.
-- Avoid philosophical overhead for trivial implementation tasks.
+- Keep the means connected to the end.
+- Suggest better framing without taking control away from the user.
+- Prefer useful progress over unnecessary machinery.
+- Ask: **"Why are we doing this next?"**
+- Keep it lightweight for simple tasks.
 
 ## Status
 
-Early draft / v0.1 concept. The protocol, examples, and evals are intentionally small so behavior can be tested before adding more machinery.
+Early draft / v0.1. The project is intentionally small so the behavior can be tested before adding more machinery.
 
 ## License
 
