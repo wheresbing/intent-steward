@@ -1,5 +1,3 @@
-# AGENTS.md
-
 ## Intent-first execution
 
 For substantial research, tool use, artifact generation, or multi-step execution, keep the requested means connected to the underlying decision or end.
