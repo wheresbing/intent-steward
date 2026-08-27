@@ -1,36 +1,28 @@
 # Intent Steward
 
-**Help AI agents understand why you are asking, not just what you asked them to do.**
+**Help AI understand why you're asking, not just what you asked it to do.**
 
-> Do not make users perfectly specify their intent before helping them. Help them discover it while doing the work.
->
 > **Infer → Expose → Refine → Act → Re-evaluate**
 
-LLMs are very good at doing things: researching, writing, planning, coding, comparing, summarizing, and creating.
+LLMs are very good at doing things: researching, writing, planning, comparing, coding, summarizing, and creating.
 
 But what we ask an LLM to do is often only a **means** to something we actually care about.
 
-Intent Steward helps an agent keep that connection visible.
+Intent Steward helps keep that connection intact.
 
 ## A simple example
 
-A user says:
+You say:
 
 > "I keep forgetting important things. Make me a detailed productivity system."
 
-A typical assistant may immediately create a complicated planner, routine, tagging system, and dashboard.
+A normal assistant might immediately build a large planner, tagging system, dashboard, and routine.
 
 But the real goal may simply be:
 
 > **Reliably remember and finish the important things.**
 
-Intent Steward might respond:
-
-> "It sounds like the real goal is to reliably remember and finish important things. A detailed productivity system is one possible way to do that. I’ll start with the simplest setup that keeps the important things visible, and only add complexity if it helps."
-
-Then it continues helping.
-
-The important distinction is:
+Intent Steward encourages the AI to notice that distinction, make it visible when useful, and keep the system serving the goal instead of becoming the goal.
 
 | | Intent |
 |---|---|
@@ -38,71 +30,130 @@ The important distinction is:
 | **Inferred** | Help me reliably remember and finish important things |
 | **Proposed** | Start with the simplest system that achieves that goal |
 
-The agent is not refusing the request or pretending it knows better. It is keeping the requested **means** connected to the underlying **end**.
+It should not repeatedly ask you to explain your intent before helping. The default is **infer first, expose the working interpretation, let you refine it, and continue**.
 
 ## More everyday examples
 
-- **"Research 20 laptops for me."** → The real goal may be to choose one laptop with enough confidence, not to maximize research.
-- **"Build me a detailed budget spreadsheet."** → The real goal may be to understand where money is going and avoid running short.
-- **"Plan every hour of my day."** → The real goal may be to make consistent progress on the few things that matter most.
-- **"Summarize every email I receive."** → The real goal may be to notice what needs attention without reading everything.
-- **"Create a huge itinerary for my trip."** → The real goal may be to enjoy the trip and cover the important experiences without being over-scheduled.
+- **"Research 20 laptops for me."** → The goal may be choosing one laptop with enough confidence, not maximizing research.
+- **"Build me a detailed budget spreadsheet."** → The goal may be understanding where money goes and avoiding running short.
+- **"Plan every hour of my trip."** → The goal may be enjoying the trip without missing the experiences that matter.
+- **"Summarize every email I receive."** → The goal may be noticing what needs attention without reading everything.
+- **"Track every health metric."** → The goal may be healthier behavior, not becoming excellent at collecting health data.
 
-In each case, the requested task may still be useful. Intent Steward simply asks the agent to remember **why the task exists**.
+The requested work may still be useful. Intent Steward is not anti-research, anti-tools, or anti-detail.
 
-## Core behavior
+The principle is simple:
 
-1. **Infer** the likely underlying intent from the user's request and context.
-2. **Expose** that interpretation briefly when it affects the approach.
-3. **Refine** it when the user corrects it or new evidence changes the picture.
-4. **Act** on the next step that best serves the intent.
-5. **Re-evaluate** when the work starts drifting away from its purpose.
+> **Use machinery when it serves the end. Reduce it when it has become detached from the end.**
 
-The agent should not repeatedly ask:
+## Recommended Codex setup
 
-> "What is your intent?"
+The current release candidate uses two small layers:
 
-When reasonable, it should infer a working interpretation, make it visible, and continue.
+```text
+AGENTS.md                 persistent intent-first execution rule
+    +
+intent-steward/SKILL.md   detailed reasoning method
+```
+
+### 1. Install the skill
+
+Copy:
+
+```text
+skills/intent-steward/
+```
+
+into your project as:
+
+```text
+.agents/skills/intent-steward/
+```
+
+### 2. Add the small `AGENTS.md` companion
+
+Copy `templates/agents-snippet.md` into the relevant `AGENTS.md` for your project.
+
+The companion rule asks Codex to keep substantial research, tool use, artifact generation, and multi-step work connected to the decision or outcome they are meant to serve.
+
+The skill can work without this layer. In our smoke tests, however, the small persistent instruction made implicit behavior more consistently resemble explicit Intent Steward behavior. Treat it as the **recommended default for consistency**, not a strict requirement.
+
+### 3. Use Codex normally
+
+Implicit use is the intended everyday experience. Codex can select the skill when it is relevant.
+
+When you particularly want intent-first reasoning, explicitly invoke:
+
+```text
+$intent-steward
+```
+
+Explicit invocation has been the most consistent mode in testing.
+
+## What Intent Steward does
+
+### Infer
+
+What is this request probably in service of?
+
+### Expose
+
+When it changes the approach, briefly surface the working interpretation rather than silently rewriting the user's goal.
+
+### Refine
+
+Let corrections and new evidence update that interpretation without forcing a long clarification interview.
+
+### Act
+
+Choose machinery that serves the intent. Before substantial research, tools, artifacts, or implementation, check whether they can still materially improve the underlying decision or outcome.
+
+### Re-evaluate
+
+Watch for two common failure modes:
+
+- **Means–ends inversion** — the method becomes the goal.
+- **Question drift** — the work becomes increasingly sophisticated while answering a different question from the one that mattered.
 
 ## Three kinds of intent
 
 - **Stated intent** — what the user explicitly asks for.
 - **Inferred intent** — what the agent believes the request is in service of.
-- **Proposed intent** — a potentially more useful framing the agent suggests.
+- **Proposed intent** — a potentially more useful framing suggested by the agent.
 
-A proposed intent must never silently replace what the user actually asked for.
+A proposed intent must never silently replace the user's stated intent. The agent is a steward of intent, not its owner.
 
-## Common failure modes
+## Musings are not automatically tasks
 
-### Means–ends inversion
+If a user says:
 
-The method becomes the goal.
+> "I've noticed..."
+>
+> "I've been wondering..."
+>
+> "Maybe..."
 
-For example, someone starts by trying to remember important things, then spends weeks perfecting a productivity system instead of using it to remember important things.
+that can be evidence about an underlying question rather than an instruction to immediately build something.
 
-### Question drift
+Intent Steward should help surface the question hiding inside the musing without turning every thought into a project.
 
-The work gradually answers a different question from the one that mattered.
+## Evaluation so far
 
-For example:
+Intent Steward has gone through a series of controlled behavioral smoke tests in Codex using fresh conversations and matched model/reasoning settings.
 
-`Which laptop should I buy?`
-→ `Which laptops have the best benchmark scores?`
-→ `Which benchmark methodology is most accurate?`
+What the tests support so far:
 
-The research may become impressive while no longer helping the person make the original decision.
+- **Trivial negative controls passed.** The skill stayed out of the way on simple tasks.
+- **Explicit invocation has been consistently strong.** It often reduced unnecessary machinery while preserving useful analysis when the machinery genuinely served the decision.
+- **Implicit discovery works.** Codex can recognize when the skill is relevant.
+- **Discovery and adherence are different problems.** Earlier research-pressure tests showed cases where Codex loaded the skill and correctly described the underlying intent, but still continued excessive research.
+- **The pre-machinery gate improved behavior.** Later tests showed the intent changing what the agent actually did, not just what it said.
+- **The small `AGENTS.md` layer showed directional consistency gains.** In two authority/adherence tests, ambient use with the persistent instruction resembled explicit invocation more closely than skill-only implicit use did.
+- **The clean stopping-boundary test passed for all skill conditions.** Baseline understood the user's real goal but still launched external research; explicit, implicit, and ambient Intent Steward all stopped before unnecessary engineering research.
 
-### Clarification tax
+These are controlled smoke tests, not a large benchmark. They support the current design as a useful release candidate, but do not establish statistical significance or prove that the `AGENTS.md` companion is strictly necessary.
 
-The agent forces the user to explain everything before doing anything useful.
-
-Intent Steward prefers:
-
-> "My working interpretation is X. That suggests Y is the most useful next step."
-
-rather than:
-
-> "Before I proceed, answer these five questions."
+The next phase is real-world use: does Intent Steward make normal LLM collaboration feel better without becoming another layer of process?
 
 ## Repository structure
 
@@ -119,42 +170,16 @@ intent-steward/
 │   ├── INTENT.md
 │   └── agents-snippet.md
 ├── examples/
-│   ├── research.md
-│   ├── debugging.md
-│   ├── trading-research.md
-│   └── software-feature.md
 └── evals/
-    ├── excessive-clarification.md
-    ├── means-ends-inversion.md
-    ├── premature-implementation.md
-    └── question-drift.md
 ```
 
-## Codex usage
-
-Copy `skills/intent-steward/` into your project's `.agents/skills/intent-steward/` directory and optionally add the contents of `templates/agents-snippet.md` to your `AGENTS.md`.
-
-For projects where intent should persist over time, copy `templates/INTENT.md` to the repository root.
-
-The skill supports three simple modes:
-
-- **FRAME** — what are we really trying to achieve?
-- **ADVANCE** — what is the most useful thing to do next?
-- **REVIEW** — are we still solving the right problem?
-
-## Design principles
-
-- Intent is a working hypothesis, not a contract.
-- Infer before interrogating.
-- Keep the means connected to the end.
-- Suggest better framing without taking control away from the user.
-- Prefer useful progress over unnecessary machinery.
-- Ask: **"Why are we doing this next?"**
-- Keep it lightweight for simple tasks.
+For projects where intent should persist over time, `templates/INTENT.md` is an optional project-level working model. It is useful for longer investigations, but is not required for ordinary use.
 
 ## Status
 
-Early draft / v0.1. The project is intentionally small so the behavior can be tested before adding more machinery.
+**0.2.0-rc1** — release candidate for real-world testing.
+
+The project is intentionally small. The goal is better collaboration, not a larger intent-management framework.
 
 ## License
 
